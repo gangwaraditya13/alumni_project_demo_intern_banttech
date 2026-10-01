@@ -1,5 +1,5 @@
 import 'package:alumni/app/theme/app_theme.dart';
-import 'package:alumni/common/splash_view.dart';
+import 'package:alumni/features/common/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
