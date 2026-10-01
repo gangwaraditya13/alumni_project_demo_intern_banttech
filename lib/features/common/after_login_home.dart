@@ -6,6 +6,7 @@ import 'package:alumni/features/university_admin_dashboard/presentation/presenta
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/reels_screen.dart';
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/scholarship_screen.dart';
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/student_alumni_athlete_search_screen.dart';
+import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/university_profile_screens/university_profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -139,12 +140,12 @@ class _AfterLoginHomeState extends State<AfterLoginHome> {
         break;
 
       case "university":
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => const UniversityProfileScreen(),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UniversityProfile(),
+          ),
+        );
         break;
 
       case "logout":
