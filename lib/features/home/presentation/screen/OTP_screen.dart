@@ -1,23 +1,32 @@
 import 'dart:async';
 
+import 'package:alumni/core/network/status.dart';
+import 'package:alumni/features/home/data/models/OTP_model/verify_OTP_Request_model.dart';
+import 'package:alumni/features/home/data/models/login/login_request_model.dart';
 import 'package:alumni/features/home/presentation/screen/dashboard_screen.dart';
+import 'package:alumni/features/home/presentation/view_model/verify_and_login_view_model.dart';
 import 'package:alumni/features/home/presentation/widgets/otp_text_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:provider/provider.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+  String mobileNo;
+  OtpScreen({required this.mobileNo, super.key});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  List<TextEditingController> controller = List.generate(
+  late String otp;
+
+
+  late List<TextEditingController> controller = List.generate(
     6,
-    (_) => TextEditingController(),
+    (index) => TextEditingController(text: otp[index]),
   );
 
   List<FocusNode> focusNode = List.generate(6, (_) => FocusNode());
@@ -27,11 +36,37 @@ class _OtpScreenState extends State<OtpScreen> {
   int count = 60;
   bool _isDisable = true;
 
+  late VerifyAndLoginViewModel _verifyAndLoginViewModel;
+
+
+
+  Future<void> _initializeOtp() async {
+    final s = await _verifyAndLoginViewModel.getOtp();
+
+    if (!mounted) return;
+
+    otp = s;
+
+    final verifyOtpRequestModel = VerifyOtpRequestModel(
+      mobile: widget.mobileNo,
+      otp: otp,
+    );
+
+    await _verifyAndLoginViewModel.verifyOTP(
+      verifyOtpRequestModel,
+    );
+
+    if (!mounted) return;
+
+    _startTimer();
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _startTimer();
+    _verifyAndLoginViewModel = context.read<VerifyAndLoginViewModel>();
+    _initializeOtp();
   }
 
   void _startTimer() {
@@ -77,8 +112,12 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(),
@@ -108,25 +147,55 @@ class _OtpScreenState extends State<OtpScreen> {
                           Container(
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height / 12,
-                            child: Row(
-                              children: List.generate(
-                                6,
-                                    (index) => Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                                    child: OtpTextField(
-                                      controller: controller[index],
-                                      node: focusNode[index],
-                                      onChanged: (value) {
-                                        _onOtpChanged(value, index);
-                                      },
-                                      onBackspace: () {
-                                        _onBackspace(index);
-                                      },
+                            child: Consumer<VerifyAndLoginViewModel>(
+                              builder: (context, value, child) {
+                                if(value.verifyOtpApiResponse.status == Status.COMPLETE){
+                                  return Row(
+                                    children: List.generate(
+                                      6,
+                                          (index) => Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                          child: OtpTextField(
+                                            enabled: true,
+                                            controller: controller[index],
+                                            node: focusNode[index],
+                                            onChanged: (value) {
+                                              _onOtpChanged(value, index);
+                                            },
+                                            onBackspace: () {
+                                              _onBackspace(index);
+                                            },
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
+                                  );
+                                }
+
+                                return Row(
+                                    children: List.generate(
+                                      6,
+                                          (index) => Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                          child: OtpTextField(
+                                            enabled: false,
+                                            controller: controller[index],
+                                            node: focusNode[index],
+                                            onChanged: (value) {
+                                              _onOtpChanged(value, index);
+                                            },
+                                            onBackspace: () {
+                                              _onBackspace(index);
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+
+                              },
                             ),
                           ),
                           Padding(
@@ -189,21 +258,61 @@ class _OtpScreenState extends State<OtpScreen> {
                   ],
                 ),
 
-                InkWell(
-                  onTap: (){
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardScreen(),));
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height/18,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(12)
+                Consumer<VerifyAndLoginViewModel>(builder: (context, value, child) {
+                  if(value.loginApiResponse.status == Status.LOADING){
+                    return AbsorbPointer(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height/18,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(12)
+                        ),
+                        child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface,)),
+                      ),
+                    );
+                  }
+                  if(value.loginApiResponse.status == Status.ERROR){
+                    return AbsorbPointer(
+                      child: InkWell(
+                        onTap: ()async{
+                          Navigator.pop(context);
+                          LoginRequestModel loginRequestModel = LoginRequestModel(mobile: widget.mobileNo, otp: otp);
+
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardScreen(),));
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height/18,
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary,
+                              borderRadius: BorderRadius.circular(12)
+                          ),
+                          child: Center(child: Text("OTP not verified or expired", style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold, fontSize: 15.sp),)),
+                        ),
+                      ),
+                    );
+                  }
+                  return AbsorbPointer(
+                    child: InkWell(
+                      onTap: ()async{
+                        Navigator.pop(context);
+                        LoginRequestModel loginRequestModel = LoginRequestModel(mobile: widget.mobileNo, otp: otp);
+
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardScreen(),));
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height/18,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(12)
+                        ),
+                        child: Center(child: Text("Log In", style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold, fontSize: 15.sp),)),
+                      ),
                     ),
-                    child: Center(child: Text("Log In", style: TextStyle(color: Theme.of(context).colorScheme.surface, fontWeight: FontWeight.bold, fontSize: 15.sp),)),
-                  ),
-                )
+                  );
+                },)
               ],
             ),
           ),

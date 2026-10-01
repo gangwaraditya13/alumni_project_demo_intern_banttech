@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:nativewrappers/_internal/vm/lib/convert_patch.dart';
 
 import 'package:http/http.dart' as http;
 
 class ApiClient {
 
   Future<dynamic> post(String? url ,dynamic body)async{
+    // debugPrint("body in remote Datasource : $body}");
     try {
       final response = await http.post(Uri.parse(url.toString()), headers: {
         "Accept": "application/json",
         "Content-Type": "application/json"
-      }, body: jsonEncode(body));
-
+      }, body: jsonEncode(body)).timeout(Duration(seconds: 10));
+      // debugPrint("response in ApiClient : ${response.body}");
       return checkResponse(response);
     }on SocketException{
       throw Exception("error in post on uri : ${url}");
@@ -24,7 +24,7 @@ class ApiClient {
       final response = await http.get(Uri.parse(url.toString()),headers: {
         "Accept": "application/json",
         "Content-Type": "application/json"
-      });
+      }).timeout(Duration(seconds: 10));
 
       return checkResponse(response);
     }on SocketException{

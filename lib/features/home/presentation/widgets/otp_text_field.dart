@@ -9,8 +9,10 @@ class OtpTextField extends StatelessWidget {
   final FocusNode node;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onBackspace;
+  final bool enabled;
 
   const OtpTextField({
+    required this.enabled,
     required this.node,
     required this.controller,
     this.onChanged,
@@ -32,6 +34,7 @@ class OtpTextField extends StatelessWidget {
             }
           },
       child: TextField(
+        enabled: enabled,
         onChanged: onChanged,
         keyboardType: .number,
         maxLength: 1,
@@ -47,7 +50,7 @@ class OtpTextField extends StatelessWidget {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: Colors.grey.withValues(alpha: 0.99),
+              color: Colors.grey.withValues(alpha: 0.5),
               width: 2.w,
             ),
           ),

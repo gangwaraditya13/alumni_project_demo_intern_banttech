@@ -1,16 +1,18 @@
 import 'package:alumni/app/theme/app_theme.dart';
+import 'package:alumni/core/app_provider/app_provider.dart';
 import 'package:alumni/features/common/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:provider/provider.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilPlusInit(
+    return MultiProvider(providers: AppProvider.providers, child:  ScreenUtilPlusInit(
 
       designSize: const Size(412, 924),
       minTextAdapt: true,
@@ -34,6 +36,6 @@ class MainApp extends StatelessWidget {
         theme: lightMode,
       ),
 
-    );
+    ),);
   }
 }

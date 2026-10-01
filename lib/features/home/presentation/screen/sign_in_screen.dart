@@ -1,10 +1,14 @@
+import 'package:alumni/core/network/status.dart';
+import 'package:alumni/features/home/data/models/OTP_model/send_OTP_request_model.dart';
 import 'package:alumni/features/home/presentation/screen/OTP_screen.dart';
+import 'package:alumni/features/home/presentation/view_model/sign_in_view_model.dart';
 import 'package:alumni/features/home/presentation/widgets/custom_painter_widgets/signin_curve_painter.dart';
 import 'package:alumni/features/common/home_view.dart';
 import 'package:alumni/features/home/presentation/widgets/user_input_text_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
   SignInScreen({super.key});
@@ -17,6 +21,14 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _textEditingController = TextEditingController();
 
   bool _isDisable = true;
+
+  late SignInViewModel _signInViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _signInViewModel = context.read<SignInViewModel>();
+  }
 
   @override
   void dispose() {
@@ -264,13 +276,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             maxLength: 10,
                             onChange: (value) {
 
-                              if(!value.isEmpty && int.parse(value[0]) > 5 && value.length == 10){
-                                _isDisable = false;
-                              }else{
-                                _isDisable = true;
-                              }
+                              final isValid = RegExp(r'^[6-9]\d{9}$').hasMatch(value);
 
-                              setState(() {});
+                              setState(() {
+                                _isDisable = !isValid;
+                              });
                             },
                             keyboardType: .number,
                             textEditingController: _textEditingController,
@@ -284,30 +294,90 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
                       ),
-                      InkWell(
-                        onTap: _isDisable ? null : () {
-                          _textEditingController.clear();
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => OtpScreen(),));
-                          _isDisable = true;
-                        },
-                        child: Container(
-                          height: 50.h,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Send OTP",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.surface,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                      Consumer<SignInViewModel>(
+                        builder: (context, value, child) {
+                          if(value.sendOTPApiResponse.status == Status.LOADING){
+                            return Container(
+                              height: 50.h,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Center(
+                                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface,),
+                              ),
+                            );
+                          }
+                          if(value.sendOTPApiResponse.status == Status.ERROR){
+                            return AbsorbPointer(
+                              absorbing: _signInViewModel.sendOTPApiResponse.status == Status.LOADING,
+                              child: InkWell(
+                                onTap: _isDisable ? null : () async{
+                                  SendOtpRequestModel sendOtpRequestModel = SendOtpRequestModel(mobile: _textEditingController.text.trim());
+                                  await _signInViewModel.onTapSendOtp(sendOtpRequestModel);
+                                  if(_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
+                                    _textEditingController.clear();
+                                    Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => OtpScreen(mobileNo:  _textEditingController.text.toString(),),));
+                                    _isDisable = true;
+                                  }
+                                },
+                                child: Container(
+                                  height: 50.h,
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "You are not registered. Please sign up first.",
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return AbsorbPointer(
+                            absorbing: _signInViewModel.sendOTPApiResponse.status == Status.LOADING,
+                            child: InkWell(
+                              onTap: _isDisable ? null : () async{
+                                SendOtpRequestModel sendOtpRequestModel = SendOtpRequestModel(mobile: _textEditingController.text.trim());
+                                await _signInViewModel.onTapSendOtp(sendOtpRequestModel);
+                                if(_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
+                                  _textEditingController.clear();
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => OtpScreen(mobileNo: _textEditingController.text.trim(),),));
+                                  _isDisable = true;
+                                }
+                              },
+                              child: Container(
+                                height: 50.h,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                  color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Send OTP",
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.surface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       Align(
                         alignment: .center,

@@ -8,7 +8,9 @@ class ApiResponse<T> {
 
   ApiResponse(this.status, this.message, this.data);
 
+
   ApiResponse.loading():status = Status.LOADING;
+  ApiResponse.initial():status = Status.INITIAL;
   ApiResponse.complete(this.data) :status = Status.COMPLETE;
   ApiResponse.error(this.message):status = Status.ERROR;
 

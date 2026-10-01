@@ -1,6 +1,6 @@
 class VerifyOtpRequestModel {
-  int? mobile;
-  int? otp;
+  String? mobile;
+  String? otp;
 
   VerifyOtpRequestModel({this.mobile, this.otp});
 
