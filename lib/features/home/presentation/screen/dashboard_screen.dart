@@ -1,4 +1,4 @@
-import 'package:alumni/common/after_login_home.dart';
+import 'package:alumni/features/common/after_login_home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

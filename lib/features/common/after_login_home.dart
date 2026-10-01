@@ -1,4 +1,4 @@
-import 'package:alumni/common/home_view.dart';
+import 'package:alumni/features/common/home_view.dart';
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/event_screen.dart';
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/home_screen_after_login.dart';
 import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/profile_dashboard_screen/university_admin_edit_profile.dart';

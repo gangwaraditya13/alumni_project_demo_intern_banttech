@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:alumni/common/home_view.dart';
+import 'package:alumni/features/common/home_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

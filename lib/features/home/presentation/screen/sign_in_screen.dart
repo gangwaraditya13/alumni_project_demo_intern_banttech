@@ -1,6 +1,6 @@
 import 'package:alumni/features/home/presentation/screen/OTP_screen.dart';
 import 'package:alumni/features/home/presentation/widgets/custom_painter_widgets/signin_curve_painter.dart';
-import 'package:alumni/common/home_view.dart';
+import 'package:alumni/features/common/home_view.dart';
 import 'package:alumni/features/home/presentation/widgets/user_input_text_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
