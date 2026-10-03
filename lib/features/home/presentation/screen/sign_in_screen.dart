@@ -11,7 +11,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
-  SignInScreen({super.key});
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -34,6 +34,35 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendOtp() async {
+
+    final mobile = _textEditingController.text.trim();
+    debugPrint("[SIGNIN] sending OTP for mobile='$mobile'");
+
+    await _signInViewModel.onTapSendOtp(
+      SendOtpRequestModel(mobile: mobile),
+    );
+
+    if (!mounted) return;
+
+    if (_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
+      debugPrint("[SIGNIN] navigating with mobile='$mobile'");
+
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpScreen(mobileNo: mobile),
+        ),
+      );
+
+      if (!mounted) return;
+      _textEditingController.clear();
+      setState(() {
+        _isDisable = true;
+      });
+    }
   }
 
   @override
@@ -275,8 +304,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: UserInputTextForm(
                             maxLength: 10,
                             onChange: (value) {
-
-                              final isValid = RegExp(r'^[6-9]\d{9}$').hasMatch(value);
+                              final isValid =
+                              RegExp(r'^[6-9]\d{9}$').hasMatch(value);
 
                               setState(() {
                                 _isDisable = !isValid;
@@ -296,82 +325,71 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                       Consumer<SignInViewModel>(
                         builder: (context, value, child) {
-                          if(value.sendOTPApiResponse.status == Status.LOADING){
+                          final status = value.sendOTPApiResponse.status;
+
+                          if (status == Status.LOADING) {
                             return Container(
                               height: 50.h,
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
-                                color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
+                                color: _isDisable
+                                    ? Colors.grey
+                                    : Theme.of(context).colorScheme.secondary,
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Center(
-                                child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface,),
-                              ),
-                            );
-                          }
-                          if(value.sendOTPApiResponse.status == Status.ERROR){
-                            return AbsorbPointer(
-                              absorbing: _signInViewModel.sendOTPApiResponse.status == Status.LOADING,
-                              child: InkWell(
-                                onTap: _isDisable ? null : () async{
-                                  SendOtpRequestModel sendOtpRequestModel = SendOtpRequestModel(mobile: _textEditingController.text.trim());
-                                  await _signInViewModel.onTapSendOtp(sendOtpRequestModel);
-                                  if(_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
-                                    _textEditingController.clear();
-                                    Navigator.push(context, MaterialPageRoute(
-                                      builder: (context) => OtpScreen(mobileNo:  _textEditingController.text.toString(),),));
-                                    _isDisable = true;
-                                  }
-                                },
-                                child: Container(
-                                  height: 50.h,
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                    color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "You are not registered. Please sign up first.",
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.surface,
                                 ),
                               ),
                             );
                           }
-                          return AbsorbPointer(
-                            absorbing: _signInViewModel.sendOTPApiResponse.status == Status.LOADING,
-                            child: InkWell(
-                              onTap: _isDisable ? null : () async{
-                                SendOtpRequestModel sendOtpRequestModel = SendOtpRequestModel(mobile: _textEditingController.text.trim());
-                                await _signInViewModel.onTapSendOtp(sendOtpRequestModel);
-                                if(_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
-                                  _textEditingController.clear();
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) => OtpScreen(mobileNo: _textEditingController.text.trim(),),));
-                                  _isDisable = true;
-                                }
-                              },
+
+                          if (status == Status.ERROR) {
+                            return InkWell(
+                              onTap: _isDisable ? null : _sendOtp,
                               child: Container(
                                 height: 50.h,
                                 width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
-                                  color: _isDisable ? Colors.grey : Theme.of(context).colorScheme.secondary,
+                                  color: _isDisable
+                                      ? Colors.grey
+                                      : Theme.of(context).colorScheme.secondary,
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 child: Center(
                                   child: Text(
-                                    "Send OTP",
+                                    "You are not registered. Please sign up first.",
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.surface,
-                                      fontSize: 20,
+                                      color: Colors.red,
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return InkWell(
+                            onTap: _isDisable ? null : _sendOtp,
+                            child: Container(
+                              height: 50.h,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                color: _isDisable
+                                    ? Colors.grey
+                                    : Theme.of(context).colorScheme.secondary,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Send OTP",
+                                  style: TextStyle(
+                                    color:
+                                    Theme.of(context).colorScheme.surface,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -400,9 +418,8 @@ class _SignInScreenState extends State<SignInScreen> {
                               Text(
                                 "Back to Home",
                                 style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.secondary,
+                                  color:
+                                  Theme.of(context).colorScheme.secondary,
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.bold,
                                   decoration: .underline,

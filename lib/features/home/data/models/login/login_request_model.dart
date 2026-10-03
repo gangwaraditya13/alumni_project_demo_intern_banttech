@@ -1,6 +1,6 @@
 class LoginRequestModel {
-  String? mobile;
-  String? otp;
+  int? mobile;
+  int? otp;
 
   LoginRequestModel({this.mobile, this.otp});
 

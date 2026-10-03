@@ -6,7 +6,6 @@ import 'package:alumni/features/home/data/models/OTP_model/verify_OTP_Request_mo
 import 'package:alumni/features/home/data/models/OTP_model/verify_OTP_response_model.dart';
 import 'package:alumni/features/home/data/models/login/login_request_model.dart';
 import 'package:alumni/features/home/data/models/login/login_response_model.dart';
-import 'package:flutter/cupertino.dart';
 
 class AuthRemoteDatasource {
 
@@ -31,7 +30,7 @@ class AuthRemoteDatasource {
   //login
   Future<LoginResponseModel> login(LoginRequestModel loginRequestModel)async{
 
-    final response  = await _apiClient.post(ApiConstant.verifyOTPUrl, loginRequestModel.toJson());
+    final response  = await _apiClient.post(ApiConstant.loginUrl, loginRequestModel.toJson());
 
     return LoginResponseModel.fromJson(response);
   }
