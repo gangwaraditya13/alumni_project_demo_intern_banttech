@@ -38,9 +38,11 @@ class ApiClient {
     }else if(response.statusCode == 201){
       return jsonDecode(response.body);
     }else if(response.statusCode == 400){
-      throw Exception("Bad Request");
+      throw Exception("${jsonDecode(response.body)['message']}");
     }else if(response.statusCode == 401){
-      throw Exception("Unauthorized");
+      throw Exception("${jsonDecode(response.body)['message']}");
+    }else if(response.statusCode == 422){
+      throw Exception("${jsonDecode(response.body)['message']}");
     }
     else{
       throw Exception("Some thing Noty ${response.statusCode}");

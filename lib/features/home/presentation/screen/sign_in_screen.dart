@@ -299,7 +299,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 8.r, bottom: 15.r),
+                        padding: EdgeInsets.only(top: 8.r, bottom: 8.r),
                         child: Form(
                           child: UserInputTextForm(
                             maxLength: 10,
@@ -323,6 +323,17 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
                       ),
+                      Consumer<SignInViewModel>(
+                        builder: (context, value, child) {
+                          final status = value.sendOTPApiResponse.status;
+                          if(status == Status.LOADING || status == Status.COMPLETE || status == Status.INITIAL){
+                            return Text("");
+                          }else{
+                            return Text("${value.sendOTPApiResponse.message!.substring(10)}", style: TextStyle(color: Colors.red),);
+                            }
+                        },
+                      ),
+                      SizedBox(height: 8.w,),
                       Consumer<SignInViewModel>(
                         builder: (context, value, child) {
                           final status = value.sendOTPApiResponse.status;
@@ -359,9 +370,9 @@ class _SignInScreenState extends State<SignInScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    "You are not registered. Please sign up first.",
+                                    "Send OTP",
                                     style: TextStyle(
-                                      color: Colors.red,
+                                      color: Theme.of(context).colorScheme.surface,
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
