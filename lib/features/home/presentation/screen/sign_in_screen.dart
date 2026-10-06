@@ -50,7 +50,7 @@ class _SignInScreenState extends State<SignInScreen> {
     if (_signInViewModel.sendOTPApiResponse.status == Status.COMPLETE) {
       debugPrint("[SIGNIN] navigating with mobile='$mobile'");
 
-      await Navigator.push(
+      await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => OtpScreen(mobileNo: mobile),

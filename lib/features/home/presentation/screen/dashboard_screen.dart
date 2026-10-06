@@ -1,6 +1,5 @@
-import 'package:alumni/features/alumni_dashboard/screen/after_login_home_alumni.dart';
-import 'package:alumni/features/alumni_dashboard/screen/alumni_home_screen_after_login.dart';
-import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/after_login_home.dart';
+import 'package:alumni/features/alumni_dashboard/presentation/screen/after_login_home_alumni.dart';
+import 'package:alumni/features/university_admin_dashboard/presentation/screen/after_login_home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';

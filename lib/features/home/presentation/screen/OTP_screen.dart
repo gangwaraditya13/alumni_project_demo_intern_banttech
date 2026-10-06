@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:alumni/core/network/status.dart';
-import 'package:alumni/features/alumni_dashboard/screen/alumni_home_screen_after_login.dart';
+import 'package:alumni/features/alumni_dashboard/presentation/screen/after_login_home_alumni.dart';
 import 'package:alumni/features/home/data/models/OTP_model/verify_OTP_Request_model.dart';
 import 'package:alumni/features/home/data/models/login/login_request_model.dart';
 import 'package:alumni/features/home/presentation/screen/dashboard_screen.dart';
+import 'package:alumni/features/home/presentation/screen/sign_in_screen.dart';
 import 'package:alumni/features/home/presentation/view_model/verify_and_login_view_model.dart';
 import 'package:alumni/features/home/presentation/widgets/otp_text_field.dart';
-import 'package:alumni/features/university_admin_dashboard/presentation/presentation/screen/after_login_home.dart';
+import 'package:alumni/features/university_admin_dashboard/presentation/screen/after_login_home.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -222,11 +223,10 @@ class _OtpScreenState extends State<OtpScreen> {
     if (roleId == 2) {
       destination = AfterLoginHome();
     } else if (roleId == 7) {
-      destination = AlumniHomeScreenAfterLogin();
+      destination = AfterLoginHomeAlumni();
     } else {
       destination = DashboardScreen();
     }
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => destination),
@@ -373,7 +373,7 @@ class _OtpScreenState extends State<OtpScreen> {
                           Padding(
                             padding: EdgeInsets.all(15.r),
                             child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
+                              onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen(),)),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
